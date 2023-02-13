@@ -23,13 +23,7 @@ import {Auth, Amplify} from 'aws-amplify';
 
 Amplify.Logger.LOG_LEVEL = 'DEBUG';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -92,62 +86,21 @@ function App(): JSX.Element {
     }
   }
 
+  async function signIn() {
+    try {
+      const user = await Auth.signIn(username, password);
+    } catch (error) {
+      console.log('error signing in', error);
+    }
+  }
+
   async function retrieveCurrentUser() {
     Auth.currentAuthenticatedUser({bypassCache: true})
       .then(async user => {
         console.log(user);
         console.log(user.signInUserSession.accessToken.payload);
-        // setStoredUser(user);
-        // setUserAttributes(user.attributes);
       })
       .catch(err => console.log(err));
-  }
-
-  async function signIn() {
-    try {
-      const user = await Auth.signIn(username, password);
-      // setChallengeName(user.challengeName);
-      // if (
-      //   user.challengeName === 'SMS_MFA' ||
-      //   user.challengeName === 'SOFTWARE_TOKEN_MFA'
-      // ) {
-      //   const loggedUser = await Auth.confirmSignIn(
-      //     user,
-      //     totpChallengeAnswer,
-      //     challengeName,
-      //   );
-      //   console.log(loggedUser);
-      //   setStoredUser(loggedUser);
-      //   recordPersonalizeIdentifyEvent(loggedUser);
-      // } else if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
-      //   const {requiredAttributes} = user.challengeParam; // the array of required attributes, e.g ['email', 'phone_number']
-      //   console.log({requiredAttributes});
-      //   // You need to get the new password and required attributes from the UI inputs
-      //   // and then trigger the following function with a button click
-      //   // For example, the email and phone_number are required attributes
-      //   const loggedUser = await Auth.completeNewPassword(
-      //     user, // the Cognito User Object
-      //     newPassword, // the new password
-      //     // OPTIONAL, the required attributes
-      //     {
-      //       email,
-      //       phone_number,
-      //     },
-      //   );
-      //   setStoredUser(loggedUser);
-      // } else if (user.challengeName === 'MFA_SETUP') {
-      //   // This happens when the MFA method is TOTP
-      //   // The user needs to setup the TOTP before using it
-      //   // More info please check the Enabling MFA part
-      //   setupTOTP(user);
-      // } else {
-      //   // The user directly signs in
-      //   console.log(user);
-      //   setStoredUser(user);
-      // }
-    } catch (error) {
-      console.log('error signing in', error);
-    }
   }
 
   async function signOut() {
@@ -195,11 +148,18 @@ function App(): JSX.Element {
               placeholder="Email"
               autoCapitalize="none"
             />
-
             <Button onPress={signUp} title="Sign Up" />
-            <Button onPress={signIn} title="Sign In" />
-            <Button onPress={signOut} title="Sign Out" />
+            <Section title="Confirm Sign Up"></Section>
+            <Text>Enter Confirmation from Email Below</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={setCode}
+              value={code}
+              placeholder="Confirmation Code"
+            />
+            <Button onPress={confirmSignUp} title="Confirm Sign Up" />
           </Section>
+
           <Section title="Sign In">
             <TextInput
               style={styles.input}
@@ -216,24 +176,11 @@ function App(): JSX.Element {
               placeholder="Password"
               secureTextEntry
             />
+            <Button onPress={signIn} title="Sign In" />
           </Section>
-          <Section title="Confirm Sign Up">
-            <TextInput
-              style={styles.input}
-              onChangeText={setCode}
-              value={code}
-              placeholder="Confirmation Code"
-            />
-            <Button onPress={confirmSignUp} title="Confirm Sign Up" />
-            {/* <Button
-              onPress={resendConfirmationCode}
-              title="Resend Confirmation"
-            /> */}
-          </Section>
-          <Section title="Sign Out / Get Current User">
-            <Button onPress={signOut} title="Sign Out" />
-            <Button onPress={retrieveCurrentUser} title="Current User" />
-          </Section>
+          <Section title="Sign Out / Get Current User"></Section>
+          <Button onPress={signOut} title="Sign Out" />
+          <Button onPress={retrieveCurrentUser} title="Current User" />
         </View>
       </ScrollView>
     </SafeAreaView>
